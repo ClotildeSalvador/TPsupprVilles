@@ -2,14 +2,72 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-	<title>Exemple de template</title>
+	<title>Liste des villes</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" type="text/css" href="/css/style.css" />
+	<script>
+	function doRequest() {
+		fetch("api/countries")
+			.then(response => response.json())
+			.then(json => showResult(json))
+			.catch(error => showError(error));
+	}
+	function showResult(resultJson) {
+		var template = document.getElementById("countriesTemplate").innerHTML;
+		var generatedHtml=Mustache.render(template, resultJson._embedded);
+		document.getElementById("country").innerHTML=generatedHtml;
+	}
+	</script>
+	<script id="countriesTemplate" type="text/html">
+		<h2>Liste des pays<h2>
+		<table>
+		<tr><th>Code</th><th>Nom</th></tr>
+		{{#countries}}
+		<tr><td>{{code}}</td><td>{{name}}</td></tr>
+		{{/countries}}
+		</table>
+	</script>
+
 </head>
 
 <body>
-	<h1>Exemple</h1>
-	<h2>Hello {{message}} !</h2>
+	<h1>Les villes</h1>
+		<h2>Ajouter une catégorie</h2>
+		<form method="post" action="save">
+			<div class="column">
+				<label for="name">Name:</label>
+				<input type="text" name="name" 
+					{{#city.name}} value="{{city.name}}" {{/city.name}}
+					placeholder="Nom de la ville"/>	
+				<label for="population">Population :</label>
+				<input type="number" name="population" 
+					{{#city.population}} value="{{city.population}}" {{/city.population}}
+					placeholder="Population de la ville"/>				
+				<label for="country">Pays :</label>
+				<select name="country" id="country"> 
+				{{#countries}}
+					<option> {{countries.name}} </option>
+				{{/countries}}
+    			</select>
+				<input type="hidden" name="id">
+				<input type="submit" value="Enregistrer" /> <input type="reset" value="Réinitialiser" />
+			</div>
+		</form>	
+		<h2>Liste des villes</h2>			
+		<table>
+			<tr><th>Nom</th><th>Population</th><th>Pays</th><th>Action</th></tr>
+			{{! Pour chaque ville v dans la liste 'villes' transmise par le contrôleur }}
+			{{#villes}}
+				<tr>
+					{{! On affiche les informations de la ville }}
+					<td>{{name}}</td>
+					<td>{{population}}</td>
+					<td>{{country.name}}</td>
+					{{! On affiche un lien vers la page de modification de la ville }}
+					<td><input type="delete" value="Supprimer" /></td>
+				</tr>
+			{{/villes}}
+		</table>
 </body>
 
 </html>
